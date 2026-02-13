@@ -1,95 +1,257 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>我的鋼琴指法紀錄器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>鋼琴和弦指法手冊 - 專業教學版</title>
     <style>
-        /* 鋼琴容器 */
-        .piano-container {
-            display: flex;
-            justify-content: center;
-            margin-top: 50px;
-            position: relative;
-            background: #333;
-            padding: 20px;
-            border-radius: 10px;
+        :root {
+            --key-w: 26px;   
+            --key-h: 90px;  
+            --bg-dark: #121416;        /* 更深邃的背景色 */
+            --card-light: #ffffff;     /* 純白內容卡片 */
+            --accent-red: #ff4757;     /* 右手指法珊瑚紅 */
+            --accent-blue: #2e86de;    /* 左手指法優雅藍 */
+            --chord-text: #2d3436;     /* 深灰色字體，比純黑更協調 */
+            --chord-bg: #fdfcf0;       /* 象牙色紙張感 */
+            --border-soft: 1px solid #e1e4e8;
         }
 
-        /* 白鍵樣式 */
-        .key {
-            width: 60px;
-            height: 250px;
-            border: 1px solid #000;
-            background: white;
-            cursor: pointer;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            padding-bottom: 10px;
-            font-weight: bold;
-            z-index: 1;
-            transition: background 0.2s;
-        }
-
-        /* 黑鍵樣式 */
-        .key.black {
-            width: 40px;
-            height: 150px;
-            background: black;
+        body {
+            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
+            background-color: var(--bg-dark);
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column; align-items: center;
             color: white;
-            margin-left: -20px;
-            margin-right: -20px;
-            z-index: 2;
         }
 
-        /* 被點擊後的顏色 (指法標記) */
-        .key.active {
-            background: #ffcc00;
+        /* --- 頂部標題 --- */
+        .site-header { 
+            width: 100%; padding: 60px 0 40px; text-align: center; 
+            background: linear-gradient(180deg, #1e2124 0%, var(--bg-dark) 100%);
+        }
+        .site-header h1 { margin: 0; font-size: 2.5rem; letter-spacing: 5px; font-weight: 900; }
+        .site-header p { margin: 15px 0 0; color: #888; font-size: 1.1rem; letter-spacing: 1px; }
+
+        /* --- 內容容器 --- */
+        #main-content { width: 95%; max-width: 1000px; padding-bottom: 100px; }
+
+        /* --- 課程單元卡片 --- */
+        .lesson-module {
+            background: var(--card-light);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 50px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            color: #333;
         }
 
-        /* 影片容器 */
-        .video-section {
-            text-align: center;
-            margin-bottom: 20px;
+        /* --- 標題與副標題 --- */
+        .lesson-header-group {
+            margin-bottom: 25px;
+            border-left: 6px solid var(--accent-red);
+            padding-left: 18px;
         }
+
+        .title-row {
+            display: flex; justify-content: space-between; align-items: baseline;
+        }
+
+        .main-title { font-size: 1.6rem; font-weight: 800; color: #1a1a1a; }
+        .step-count { font-size: 0.9rem; color: #999; font-weight: bold; }
+        .sub-title { font-size: 0.95rem; color: #636e72; margin-top: 6px; display: block; line-height: 1.5; }
+
+        /* --- 16 小節和弦網格 (視覺優化版) --- */
+        .chord-grid {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            gap: 8px; /* 增加小節間距，更清爽 */
+            margin-bottom: 30px;
+        }
+
+        .chord-box {
+            height: 55px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--chord-text);
+            background: var(--chord-bg);
+            border: 1px solid #dcdde1;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        /* 每 4 小節 (強拍) 加一個底部的視覺標記 */
+        .chord-box.strong-beat::after {
+            content: '';
+            position: absolute;
+            bottom: 6px;
+            width: 4px; height: 4px;
+            background: #ccc;
+            border-radius: 50%;
+        }
+
+        .chord-box:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-red);
+            box-shadow: 0 5px 15px rgba(255, 71, 87, 0.15);
+            z-index: 1;
+        }
+
+        /* --- 鋼琴圖解區 --- */
+        .piano-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px dashed #ddd;
+        }
+
+        .piano-wrapper {
+            background: #1a1a1a; /* 鋼琴外殼 */
+            padding: 15px 8px 8px 8px;
+            border-radius: 10px;
+            display: inline-flex;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .piano { display: flex; position: relative; }
+
+        .white {
+            width: var(--key-w); height: var(--key-h); background: white;
+            border: 1px solid #e0e0e0; border-radius: 0 0 5px 5px;
+            display: flex; align-items: flex-end; justify-content: center;
+            padding-bottom: 10px; font-weight: bold; font-size: 11px;
+            color: transparent; flex-shrink: 0;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* 亮燈效果 */
+        .white.left { background-color: var(--accent-blue) !important; color: #fff; border: none; box-shadow: inset 0 -5px 10px rgba(0,0,0,0.1); }
+        .white.right { background-color: var(--accent-red) !important; color: #fff; border: none; box-shadow: inset 0 -5px 10px rgba(0,0,0,0.1); }
+
+        .black {
+            width: calc(var(--key-w) * 0.7); height: calc(var(--key-h) * 0.6);
+            background: #2c3e50; margin-left: calc(var(--key-w) * -0.35);
+            margin-right: calc(var(--key-w) * -0.35); z-index: 2; border-radius: 0 0 3px 3px;
+        }
+
+        .footer { padding: 60px 0; color: #555; font-size: 0.9rem; text-align: center; }
     </style>
 </head>
 <body>
 
-    <div class="video-section">
-        <h2>示範影片</h2>
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
-    </div>
+    <header class="site-header">
+        <h1>🎹 鋼琴和弦指法手冊</h1>
+        <p>CHORD PROGRESSION & FINGERING GUIDE</p>
+    </header>
 
-    <div class="piano-container" id="piano">
-        <div class="key" data-note="C">C</div>
-        <div class="key black" data-note="C#">C#</div>
-        <div class="key" data-note="D">D</div>
-        <div class="key black" data-note="D#">D#</div>
-        <div class="key" data-note="E">E</div>
-        <div class="key" data-note="F">F</div>
-        <div class="key black" data-note="F#">F#</div>
-        <div class="key" data-note="G">G</div>
-        <div class="key black" data-note="G#">G#</div>
-        <div class="key" data-note="A">A</div>
-        <div class="key black" data-note="A#">A#</div>
-        <div class="key" data-note="B">B</div>
+    <div id="main-content"></div>
+
+    <div class="footer">
+        設計用於鋼琴初學者教學範例<br>
+        建議使用電腦瀏覽器以獲得最佳顯示效果
     </div>
 
     <script>
-        const keys = document.querySelectorAll('.key');
-        keys.forEach(key => {
-            key.addEventListener('click', () => {
-                // 點擊後跳出輸入框問指法
-                const finger = prompt("請輸入這對應的指法數字 (1-5):", "1");
-                if (finger) {
-                    key.classList.toggle('active');
-                    key.innerText = `${key.dataset.note}\n(${finger})`;
+        // --- 20 個課程的數據配置 ---
+        const lessons = [
+            {
+                id: 1,
+                title: "課程 01：自彈自唱練習",
+                subTitle: "左手：一個8度 | 右手：空1格、空1格、空2格 (節奏：左1下，右4下)",
+                chords: ["C", "G", "Am", "FG", "C", "Em", "Am", "F-E", "Dm", "Am", "Em", "FG", "CG", "AmG", "FC", "DmG"],
+                piano: { 
+                    l: [1, 8], 
+                    r: [10, 12, 15], 
+                    names: { 1: 'C', 8: 'C', 10: 'E', 12: 'G', 15: 'A' } 
                 }
-            });
-        });
-    </script>
+            },
+            {
+                id: 2,
+                title: "課程 02：G 大調循環練習",
+                subTitle: "練習重點：注意 F# 的黑鍵位置與大拇指的跨越",
+                chords: ["G", "D", "Em", "Bm", "C", "G", "Am", "D", "G", "D", "Em", "Bm", "C", "D", "G", "G"],
+                piano: { 
+                    l: [5], 
+                    r: [12, 14, 16], 
+                    names: { 5: 'G', 12: 'G', 14: 'B', 16: 'D' } 
+                }
+            }
+        ];
 
+        // 模擬生成其餘 18 個課程佔位符
+        for(let i = 3; i <= 20; i++) {
+            lessons.push({
+                id: i,
+                title: `課程 ${i < 10 ? '0'+i : i}：進階綜合指法`,
+                subTitle: "待補充詳細指法說明與節奏引導",
+                chords: Array(16).fill("-"),
+                piano: { l: [1], r: [15, 17, 19], names: {} }
+            });
+        }
+
+        const container = document.getElementById('main-content');
+
+        // --- 渲染邏輯 ---
+        lessons.forEach(lesson => {
+            const module = document.createElement('div');
+            module.className = 'lesson-module';
+            
+            // 生成和弦 HTML 並加入強拍標記 (每4小節)
+            const chordHtml = lesson.chords.map((c, idx) => {
+                const isStrong = (idx % 4 === 0) ? 'strong-beat' : '';
+                return `<div class="chord-box ${isStrong}">${c}</div>`;
+            }).join('');
+
+            module.innerHTML = `
+                <div class="lesson-header-group">
+                    <div class="title-row">
+                        <span class="main-title">${lesson.title}</span>
+                        <span class="step-count">練習 ${lesson.id} / 20</span>
+                    </div>
+                    <span class="sub-title">${lesson.subTitle}</span>
+                </div>
+                <div class="chord-grid">
+                    ${chordHtml}
+                </div>
+                <div class="piano-section">
+                    <div style="font-size: 13px; color: #888; margin-bottom: 12px; font-weight: bold;">指法位置範例圖</div>
+                    <div class="piano-wrapper">
+                        <div class="piano" id="piano-target-${lesson.id}"></div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(module);
+            drawPiano(`piano-target-${lesson.id}`, lesson.piano);
+        });
+
+        // 鋼琴繪製函式
+        function drawPiano(targetId, config) {
+            const el = document.getElementById(targetId);
+            let html = '';
+            let keyCount = 0;
+            // 繪製 3 個八度
+            for (let oct = 0; oct < 3; oct++) {
+                const pattern = [true, true, false, true, true, true, false]; // 是否有黑鍵
+                for (let i = 0; i < 7; i++) {
+                    keyCount++;
+                    const isL = config.l.includes(keyCount);
+                    const isR = config.r.includes(keyIdx = keyCount);
+                    const cls = isL ? 'left' : (isR ? 'right' : '');
+                    const label = config.names[keyCount] || '';
+                    html += `<div class="white ${cls}">${label}</div>`;
+                    if (pattern[i]) html += `<div class="black"></div>`;
+                }
+            }
+            el.innerHTML = html;
+        }
+    </script>
 </body>
 </html>
-
