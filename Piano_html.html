@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>我的鋼琴指法紀錄器</title>
+    <style>
+        /* 鋼琴容器 */
+        .piano-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 50px;
+            position: relative;
+            background: #333;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        /* 白鍵樣式 */
+        .key {
+            width: 60px;
+            height: 250px;
+            border: 1px solid #000;
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 10px;
+            font-weight: bold;
+            z-index: 1;
+            transition: background 0.2s;
+        }
+
+        /* 黑鍵樣式 */
+        .key.black {
+            width: 40px;
+            height: 150px;
+            background: black;
+            color: white;
+            margin-left: -20px;
+            margin-right: -20px;
+            z-index: 2;
+        }
+
+        /* 被點擊後的顏色 (指法標記) */
+        .key.active {
+            background: #ffcc00;
+        }
+
+        /* 影片容器 */
+        .video-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="video-section">
+        <h2>示範影片</h2>
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
+    </div>
+
+    <div class="piano-container" id="piano">
+        <div class="key" data-note="C">C</div>
+        <div class="key black" data-note="C#">C#</div>
+        <div class="key" data-note="D">D</div>
+        <div class="key black" data-note="D#">D#</div>
+        <div class="key" data-note="E">E</div>
+        <div class="key" data-note="F">F</div>
+        <div class="key black" data-note="F#">F#</div>
+        <div class="key" data-note="G">G</div>
+        <div class="key black" data-note="G#">G#</div>
+        <div class="key" data-note="A">A</div>
+        <div class="key black" data-note="A#">A#</div>
+        <div class="key" data-note="B">B</div>
+    </div>
+
+    <script>
+        const keys = document.querySelectorAll('.key');
+        keys.forEach(key => {
+            key.addEventListener('click', () => {
+                // 點擊後跳出輸入框問指法
+                const finger = prompt("請輸入這對應的指法數字 (1-5):", "1");
+                if (finger) {
+                    key.classList.toggle('active');
+                    key.innerText = `${key.dataset.note}\n(${finger})`;
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
